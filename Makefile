@@ -1,16 +1,24 @@
-IMG="n0b0dyvn/alpine-ssh:0.1"
-TEST_NAME="ssh-test"
+IMG=n0b0dyvn/alpine-ssh:0.1
+TEST_NAME=ssh-test
 include env
 PWD = $(shell pwd)
+SHELL:=/bin/bash
 
 build:
 	docker build -t ${IMG} .
 
-test:
-	/bin/sh ${PWD}/run.sh
-	#  -v /ssh-key/:/ssh-key
+test: build
+	-docker rm -f ${TEST_NAME}
+	-mkdir -p ssh-key 2>/dev/null
+	-rm -f ssh-key/*
+	-ssh-keygen -t rsa -N "" -f ssh-key/id_rsa 
+	docker run -d --env-file ${PWD}/env -p ${port}:22 --name ${TEST_NAME} ${IMG}
+	# I dont know the reason why docker cp cant copy to /home/{user}/.ssh directly
+	docker cp -a ${PWD}/ssh-key/id_rsa.pub ${TEST_NAME}:/home/${user}/.ssh/authorized_keys
+	# docker exec -it ${TEST_NAME} mv /tmp/authorized_keys /home/${user}/.ssh/
+	# tar -c ssh-key/id_rsa.pub | docker exec -i ${TEST_NAME}  /bin/tar -C /home/${user}/.ssh/ -x 
 
-testall:
-	make build
-	make test
+testall: build test
+	# make build
+	# make test
 	ssh sangvh@localhost -p 2222 ls -al /

@@ -17,6 +17,6 @@ RUN ssh-keygen -t rsa -b 4096 -f  /etc/ssh/ssh_host_key
 ADD sshd-gen.sh /
 # RUN chmod +x /create_user.sh
 # RUN echo "sh /create_user.sh 2>/dev/null" | tee -a /etc/profile
-
+# ENTRYPOINT /bin/bash
 EXPOSE 22
 CMD ["/bin/bash","/sshd-gen.sh"] 
