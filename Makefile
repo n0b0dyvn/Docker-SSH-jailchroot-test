@@ -8,7 +8,6 @@ build:
 	docker build -t ${IMG} ${sshserver_dir}/
 
 test: build
-	cd container
 	-docker rm -f ${TEST_NAME}
 	mkdir -p ssh-key 2>/dev/null
 	rm -f ssh-key/*
@@ -17,7 +16,6 @@ test: build
 	# sleep 2 second to wait sshd running
 	sleep 2
 	docker cp -a ${PWD}/ssh-key/id_rsa.pub ${TEST_NAME}:/home/${user}/.ssh/authorized_keys
-	cd ${PWD}
 
 testall: build test
 	ssh sangvh@localhost -p 2222 ls -al /
